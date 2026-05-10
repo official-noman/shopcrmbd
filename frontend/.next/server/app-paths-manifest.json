@@ -1,0 +1,9 @@
+{
+  "/sales/add/page": "app/sales/add/page.js",
+  "/sales/history/page": "app/sales/history/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/products/page": "app/products/page.js",
+  "/customers/page": "app/customers/page.js",
+  "/admin-dashboard/shops/page": "app/admin-dashboard/shops/page.js",
+  "/admin-dashboard/page": "app/admin-dashboard/page.js"
+}
