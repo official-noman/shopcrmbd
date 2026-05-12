@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api";
 import { SuperAdminShop } from "@/lib/types";
 import { Card, Button, Skeleton } from "@/components/ui";
-import { Search, Filter, MoreHorizontal, User, Phone, MapPin, TrendingUp, ShoppingBag } from "lucide-react";
+import { Search, Filter, MoreHorizontal, User, Phone, MapPin, TrendingUp, ShoppingBag, Package } from "lucide-react";
 
 export default function AllShops() {
   const [shops, setShops] = useState<SuperAdminShop[]>([]);
@@ -118,9 +119,18 @@ export default function AllShops() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-                        <MoreHorizontal size={20} />
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <Link 
+                          href={`/admin-dashboard/shops/${shop.id}/products`}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                        >
+                          <Package size={14} />
+                          Products
+                        </Link>
+                        <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                          <MoreHorizontal size={20} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

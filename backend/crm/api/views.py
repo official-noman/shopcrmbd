@@ -10,7 +10,7 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -23,6 +23,8 @@ from .serializers import (
     SaleSerializer,
     ProductSerializer,
     SaleItemSerializer,
+    UserSerializer,
+    ShopSerializer,
     customer_due_annotation,
 )
 
@@ -357,3 +359,148 @@ class PaymentViewSet(ShopScopedQuerysetMixin, viewsets.ModelViewSet):
             raise ValidationError({"customer": "Customer does not belong to your shop."})
 
         serializer.save(shop=shop)
+
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class ShopUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        shop = _get_user_shop(request.user)
+        if not shop:
+            return Response({"detail": "No shop found."}, status=404)
+        serializer = ShopSerializer(shop)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        shop = _get_user_shop(request.user)
+        if not shop:
+            return Response({"detail": "No shop found."}, status=404)
+        
+        # Only owners can update shop info
+        if getattr(request.user, "role", "") != "owner" and not request.user.is_superuser:
+            raise PermissionDenied("Only shop owners can update shop information.")
+
+        serializer = ShopSerializer(shop, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class BenefitReportView(APIView):
+    def get(self, request):
+        shop = _get_user_shop(request.user)
+        if shop is None and not request.user.is_superuser:
+            return Response(
+                {"detail": "User has no shop assigned."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        product_id = request.query_params.get("product_id")
+        selected_date_str = request.query_params.get("date")
+
+        # 1. Product specific history (All dates)
+        if product_id:
+            try:
+                product = Product.objects.get(id=product_id)
+                if shop and product.shop != shop:
+                    return Response(
+                        {"detail": "Product not found in your shop."},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                items = SaleItem.objects.filter(product=product).select_related("sale", "sale__customer")
+                if shop:
+                    items = items.filter(sale__shop=shop)
+
+                report = items.annotate(
+                    date=F("sale__sale_date"),
+                    customer_name=F("sale__customer__name"),
+                    time=F("sale__created_at")
+                ).values(
+                    "id", "date", "time", "quantity", "unit_price", "unit_buy_price", "customer_name"
+                ).order_by("-time")
+
+                return Response({
+                    "product_name": product.name,
+                    "sales": list(report)
+                })
+            except (Product.DoesNotExist, ValueError):
+                return Response(
+                    {"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND
+                )
+
+        # 2. Specific Date Report (Detailed)
+        if selected_date_str:
+            try:
+                selected_date = timezone.datetime.strptime(selected_date_str, "%Y-%m-%d").date()
+            except ValueError:
+                return Response({"detail": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+            
+            items_qs = SaleItem.objects.filter(sale__sale_date=selected_date).select_related("product", "sale", "sale__customer")
+            if shop:
+                items_qs = items_qs.filter(sale__shop=shop)
+            
+            details = items_qs.annotate(
+                product_name=F("product__name"),
+                customer_name=F("sale__customer__name"),
+                time=F("sale__created_at")
+            ).values(
+                "id", "product_name", "quantity", "unit_price", "unit_buy_price", "customer_name", "time"
+            ).order_by("-time")
+
+            summary = items_qs.aggregate(
+                total_sales=Coalesce(Sum(F("quantity") * F("unit_price")), Value(Decimal("0.00"))),
+                total_benefit=Coalesce(Sum((F("unit_price") - F("unit_buy_price")) * F("quantity")), Value(Decimal("0.00")))
+            )
+
+            return Response({
+                "date": selected_date_str,
+                "details": list(details),
+                "summary": summary
+            })
+
+        # 3. Default: Date wise high-level report
+        sales_qs = Sale.objects.all()
+        if shop:
+            sales_qs = sales_qs.filter(shop=shop)
+
+        date_wise_sales = (
+            sales_qs.values(date=F("sale_date"))
+            .annotate(total_sales=Sum("total_amount"))
+            .order_by("-date")
+        )
+
+        items_qs = SaleItem.objects.all()
+        if shop:
+            items_qs = items_qs.filter(sale__shop=shop)
+
+        date_wise_benefit = (
+            items_qs.values(date=F("sale__sale_date"))
+            .annotate(
+                total_benefit=Sum(
+                    (F("unit_price") - F("unit_buy_price")) * F("quantity")
+                )
+            )
+            .order_by("-date")
+        )
+
+        return Response(
+            {
+                "date_wise_sales": list(date_wise_sales),
+                "date_wise_benefit": list(date_wise_benefit),
+            }
+        )

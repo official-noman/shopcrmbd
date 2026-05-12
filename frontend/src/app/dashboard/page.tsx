@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { DollarSign, TriangleAlert, Users } from "lucide-react";
+import { TrendingUp, TriangleAlert, Users } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -40,15 +40,15 @@ export default function DashboardPage() {
             tone="indigo"
           />
           <StatCard
-            label="Total Due"
-            value={stats ? stats.total_due : <Skeleton className="mt-2 h-7 w-24" />}
+            label="Total Due (BDT)"
+            value={stats ? `৳${stats.total_due.toLocaleString()}` : <Skeleton className="mt-2 h-7 w-24" />}
             icon={TriangleAlert}
             tone="red"
           />
           <StatCard
-            label="Today’s Sales"
-            value={stats ? stats.sales_today : <Skeleton className="mt-2 h-7 w-24" />}
-            icon={DollarSign}
+            label="Today’s Sales (BDT)"
+            value={stats ? `৳${stats.sales_today.toLocaleString()}` : <Skeleton className="mt-2 h-7 w-24" />}
+            icon={TrendingUp}
             tone="green"
           />
         </div>

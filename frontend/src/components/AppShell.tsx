@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, LogOut, PlusCircle, Users, Package, History } from "lucide-react";
+import { LayoutDashboard, LogOut, PlusCircle, Users, Package, History, TrendingUp, UserCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { clearTokens } from "@/lib/auth";
@@ -12,7 +12,9 @@ const navItems = [
   { href: "/products", label: "Products", icon: Package },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/sales/add", label: "New Sale", icon: PlusCircle },
-  { href: "/sales/history", label: "Sales History", icon: History }
+  { href: "/sales/history", label: "Sales History", icon: History },
+  { href: "/benefit", label: "Benefit", icon: TrendingUp },
+  { href: "/profile", label: "Profile", icon: UserCircle }
 ];
 
 function NavLink({

@@ -1,18 +1,143 @@
-## Python
+# ======================
+# NEXT JS (Frontend)
+# ======================
+
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/build/
+
+# Frontend env
+frontend/.env
+frontend/.env.local
+frontend/.env*.local
+
+# Frontend logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Frontend test coverage
+frontend/coverage/
+
+# Frontend turbo/vercel
+frontend/.turbo/
+frontend/.vercel/
+
+# TypeScript
+frontend/*.tsbuildinfo
+
+
+# ======================
+# DJANGO / PYTHON (Backend)
+# ======================
+
+# Python cache 
 **/__pycache__/
-*.py[cod]
-*.pyo
-.Python
+**/*.py[cod]
+**/*$py.class
 
-## Virtualenvs
+# Virtual environments 
+**/venv/
+**/.venv/
+**/env/
+**/ENV/
+venv/
 .venv/
-backend/.venv/
+env/
+ENV/
 
-## Django
+# Backend env
+backend/.env
+.env
+
+# Database
 backend/db.sqlite3
-backend/staticfiles/
+db.sqlite3
+*.sqlite3
 
-## Editor/OS
-.DS_Store
-.idea/
+# Static and media files
+backend/staticfiles/
+backend/media/
+staticfiles/
+media/
+
+# Logs
+backend/*.log
+*.log
+
+# Python build artifacts
+backend/build/
+backend/dist/
+backend/*.egg-info/
+backend/*.egg/
+*.egg-info/
+*.egg/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Django
+*.pot
+*.pyc
+local_settings.py
+
+
+# ======================
+# IDE and OS
+# ======================
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets and keys
+*.pem
+*.key
+*.crt
+*.p12
+.env.local
+.env.*.local
+
+
+# ======================
+# Package managers
+# ======================
+
+# Python
+pip-log.txt
+pip-delete-this-directory.txt
+pip-selfcheck.json
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+
+# ======================
+# Temporary files
+# ======================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~

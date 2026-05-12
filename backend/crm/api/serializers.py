@@ -5,7 +5,20 @@ from django.db.models import DecimalField, ExpressionWrapper, Sum, Value
 from django.db.models.functions import Coalesce
 from rest_framework import serializers
 
-from crm.models import Customer, Payment, Sale, Product, SaleItem
+from crm.models import Customer, Payment, Sale, Product, SaleItem, Shop, User
+
+
+class ShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = ["id", "name", "address", "phone", "type"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "phone", "role", "first_name", "last_name"]
+        read_only_fields = ["id", "username", "role"]
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -88,7 +101,7 @@ class SaleSerializer(serializers.ModelSerializer):
                 sale=sale,
                 product=product,
                 quantity=quantity,
-                unit_price=product.sale_price,
+                unit_price=item_data.get("unit_price", product.sale_price),
                 unit_buy_price=product.buy_price,
             )
 

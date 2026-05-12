@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Package, Plus, Search, Trash2, Edit2, Loader2 } from "lucide-react";
+import { Package, Plus, Search, Trash2, Pencil, Loader2 } from "lucide-react";
 
 import { api } from "@/lib/api";
 import { Product } from "@/lib/types";
@@ -164,7 +164,7 @@ export default function ProductsPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Button variant="secondary" size="sm" className="h-8 w-8 p-0 rounded-lg" onClick={() => startEdit(p)}>
-                      <Edit2 className="h-3.5 w-3.5" />
+                      <Pencil className="h-3.5 w-3.5" />
                     </Button>
                     <button className="p-2 text-slate-400 hover:text-rose-600 transition-colors" onClick={() => deleteProduct(p.id)}>
                       <Trash2 className="h-4 w-4" />

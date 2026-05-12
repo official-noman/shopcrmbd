@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import importlib.util
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,14 +26,10 @@ SECRET_KEY = 'django-insecure-4hxa4uiy@yl_aa%=sq0^3-9*d=qexp^n1i%k#tvd!joa)mtg8k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
-HAS_DRF = importlib.util.find_spec("rest_framework") is not None
-HAS_CORS = importlib.util.find_spec("corsheaders") is not None
-HAS_SIMPLEJWT = importlib.util.find_spec("rest_framework_simplejwt") is not None
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -43,16 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Third party apps
+    'rest_framework',
+    'corsheaders',
     # Local apps
     'crm',
 ]
 
-if HAS_DRF:
-    INSTALLED_APPS.append("rest_framework")
-if HAS_CORS:
-    INSTALLED_APPS.append("corsheaders")
-
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Must be as high as possible
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -61,9 +55,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-if HAS_CORS:
-    MIDDLEWARE.insert(1, "corsheaders.middleware.CorsMiddleware")
 
 ROOT_URLCONF = 'config.urls'
 
@@ -137,22 +128,21 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'crm.User'
 
 # CORS (dev)
-CORS_ALLOW_ALL_ORIGINS = True if HAS_CORS else False
+CORS_ALLOW_ALL_ORIGINS = True
 
 # DRF + JWT (used in Step 2 endpoints)
-if HAS_DRF and HAS_SIMPLEJWT:
-    REST_FRAMEWORK = {
-        "DEFAULT_AUTHENTICATION_CLASSES": (
-            "rest_framework_simplejwt.authentication.JWTAuthentication",
-        ),
-        "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
-    }
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
 
-    SIMPLE_JWT = {
-        "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-        "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-        "AUTH_HEADER_TYPES": ("Bearer",),
-    }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
