@@ -140,4 +140,4 @@ yarn-error.log*
 *.bak
 *.swp
 *.swo
-*~
+*~frontend/.next/
